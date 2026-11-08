@@ -1,0 +1,6 @@
+{
+  "name": "PixelForge RPG - Sprite & Tileset Studio",
+  "description": "Herramienta profesional de creación de sprites y tilesets RPG top-down, animación en 4 direcciones y exportación directa para Godot 4 y Unity con generación asistida por IA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
