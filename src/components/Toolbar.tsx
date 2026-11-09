@@ -5,6 +5,9 @@ import {
   PaintBucket, 
   Pipette, 
   Slash, 
+  Square,
+  Circle,
+  Brush,
   Grid, 
   Eye, 
   Undo2, 
@@ -13,9 +16,11 @@ import {
   ZoomOut, 
   Sparkles,
   FlipHorizontal,
+  FlipVertical,
+  RotateCw,
   Trash2
 } from 'lucide-react';
-import { EditorTool, PalettePreset, RenderStyle } from '../types';
+import { EditorTool, PalettePreset } from '../types';
 import { RPG_PALETTES } from '../utils/palettes';
 
 interface ToolbarProps {
@@ -37,6 +42,8 @@ interface ToolbarProps {
   onRedo: () => void;
   onClear: () => void;
   onFlipH: () => void;
+  onFlipV?: () => void;
+  onRotate?: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -58,24 +65,29 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onRedo,
   onClear,
   onFlipH,
+  onFlipV,
+  onRotate,
 }) => {
   const tools: { id: EditorTool; label: string; icon: React.ReactNode }[] = [
     { id: 'pencil', label: 'Lápiz (P)', icon: <Pencil className="w-4 h-4" /> },
+    { id: 'brush', label: 'Pincel (B)', icon: <Brush className="w-4 h-4" /> },
     { id: 'eraser', label: 'Borrador (E)', icon: <Eraser className="w-4 h-4" /> },
-    { id: 'bucket', label: 'Relleno (B)', icon: <PaintBucket className="w-4 h-4" /> },
+    { id: 'bucket', label: 'Cubo de Relleno (G)', icon: <PaintBucket className="w-4 h-4" /> },
     { id: 'picker', label: 'Gotero (I)', icon: <Pipette className="w-4 h-4" /> },
     { id: 'line', label: 'Línea (L)', icon: <Slash className="w-4 h-4" /> },
-    { id: 'dither', label: 'Pincel Tramado (D)', icon: <Sparkles className="w-4 h-4" /> },
+    { id: 'rectangle', label: 'Rectángulo (R)', icon: <Square className="w-4 h-4" /> },
+    { id: 'circle', label: 'Círculo (C)', icon: <Circle className="w-4 h-4" /> },
+    { id: 'dither', label: 'Tramado (D)', icon: <Sparkles className="w-4 h-4" /> },
   ];
 
   return (
-    <div className="flex flex-col gap-4 p-3 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 shadow-lg">
+    <div className="flex flex-col gap-4 p-3 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 shadow-lg select-none">
       {/* Tool Buttons */}
       <div className="flex flex-col gap-1.5">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-1">
           Herramientas
         </span>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-3 gap-1.5">
           {tools.map(t => (
             <button
               key={t.id}
@@ -93,12 +105,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
       </div>
 
-      {/* Undo, Redo, Flip, Clear */}
+      {/* Undo, Redo, Flip, Rotate, Clear */}
       <div className="flex flex-col gap-1.5">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-1">
-          Edición
+          Transformaciones
         </span>
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-5 gap-1">
           <button
             onClick={onUndo}
             disabled={!canUndo}
@@ -122,14 +134,33 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           >
             <FlipHorizontal className="w-3.5 h-3.5" />
           </button>
-          <button
-            onClick={onClear}
-            title="Limpiar Cuadro"
-            className="flex items-center justify-center p-2 bg-rose-950/40 border border-rose-800/40 rounded-lg hover:bg-rose-900/50 text-rose-300 cursor-pointer"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {onFlipV && (
+            <button
+              onClick={onFlipV}
+              title="Voltear Vertical"
+              className="flex items-center justify-center p-2 bg-slate-800/80 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white cursor-pointer"
+            >
+              <FlipVertical className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {onRotate && (
+            <button
+              onClick={onRotate}
+              title="Rotar 90° Horario"
+              className="flex items-center justify-center p-2 bg-slate-800/80 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white cursor-pointer"
+            >
+              <RotateCw className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
+        <button
+          onClick={onClear}
+          title="Limpiar Capa / Cuadro"
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-rose-950/40 border border-rose-800/40 rounded-lg hover:bg-rose-900/50 text-rose-300 text-xs mt-1 cursor-pointer"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          <span>Limpiar Lienzo</span>
+        </button>
       </div>
 
       {/* View & Canvas Toggles */}
@@ -158,7 +189,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            <span>Papel Cebolla</span>
+            <span>Cebolla</span>
           </button>
         </div>
 
@@ -213,7 +244,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <span className="text-xs font-mono font-medium text-slate-200">
               {activeColor.toUpperCase() || '#FFFFFF'}
             </span>
-            <span className="text-[10px] text-slate-400">{palette.era}</span>
+            <span className="text-[10px] text-slate-400 truncate">{palette.era}</span>
           </div>
         </div>
 
